@@ -78,16 +78,32 @@ namespace fref
             return _lower_right_x - _upper_left_x;
         }
 
+        void
+        increment_frame()
+        {
+            ++_index;
+        }
+
         State
         save()
         {
             return State(*this);
         }
 
+        void
+        write_next_frame(Cairo::RefPtr<Cairo::Surface> surface)
+        {
+            char filename[256];
+            std::snprintf(filename, sizeof(filename), _frame_format.c_str(), _index);
+            increment_frame();
+            surface->write_to_png(filename);
+        }
+
         double _upper_left_x  = 0.0;
         double _upper_left_y  = 0.0;
         double _lower_right_x = 0.0;
         double _lower_right_y = 0.0;
+        int _index = 0;
         std::string _frame_format;
 
         Cairo::RefPtr<Cairo::Context> _cr;
@@ -106,7 +122,7 @@ namespace fref
     {
         auto raii(_impl->save());
 
-        _impl->_cr->set_source_rgba(0, 0, 0, 0);
+        _impl->_cr->set_source_rgba(0.0, 0.0, 0.0, 0.0);
         _impl->_cr->set_operator(Cairo::Operator::OPERATOR_CLEAR);
         _impl->_cr->paint();
     }
@@ -124,9 +140,15 @@ namespace fref
     void
     Frame::fade(double fade_value)
     {
+        fade({0.0, 0.0, 0.0, fade_value});
+    }
+
+    void
+    Frame::fade(const rgba& color)
+    {
         auto raii(_impl->save());
 
-        _impl->_cr->set_source_rgba(0.0, 0.5, 0.0, 1.0 - fade_value);
+        _impl->_cr->set_source_rgba(color.r, color.g, color.b, color.a);
         _impl->_cr->set_operator(Cairo::Operator::OPERATOR_ATOP);
         _impl->_cr->paint();
     }
@@ -156,6 +178,18 @@ namespace fref
     }
 
     void
+    Frame::pop_group_to_source()
+    {
+        _impl->_cr->pop_group_to_source();
+    }
+
+    void
+    Frame::push_group()
+    {
+        _impl->_cr->push_group();
+    }
+
+    void
     Frame::rotate(double angle)
     {
         _impl->_cr->rotate(angle);
@@ -174,19 +208,44 @@ namespace fref
     }
 
     void
+    Frame::select_font(const std::string& font_name, int text_size)
+    {
+        _impl->_cr->select_font_face(font_name.c_str(), Cairo::FontSlant::FONT_SLANT_NORMAL,
+                             Cairo::FontWeight::FONT_WEIGHT_NORMAL);
+        _impl->_cr->set_font_size(text_size);
+    }
+
+    void
+    Frame::set_background(const rgba& color)
+    {
+        _impl->_cr->set_source_rgba(color.r, color.g, color.b, color.a);
+        _impl->_cr->set_operator(Cairo::Operator::OPERATOR_DEST_OVER);
+        _impl->_cr->paint();
+    }
+
+    void
     Frame::translate(point2d pt)
     {
         _impl->_cr->translate(pt.first, pt.second);
     }
 
     void
-    Frame::write_frame(int index)
+    Frame::write_next_frame()
     {
-        auto surface = _impl->_cr->get_target();
+        _impl->write_next_frame(_impl->_cr->get_target());
+    }
 
-        char filename[256];
-        std::snprintf(filename, sizeof(filename), _impl->_frame_format.c_str(), index);
-        surface->write_to_png(filename);
+    void
+    Frame::write_next_frame(const rgba& background)
+    {
+        _impl->_cr->push_group();
+        _impl->_cr->set_identity_matrix();
+        _impl->_cr->set_source(_impl->_cr->get_target(), 0.0, 0.0);
+        _impl->_cr->set_operator(Cairo::Operator::OPERATOR_SOURCE);
+        _impl->_cr->paint();
+        set_background(background);
+        _impl->write_next_frame(_impl->_cr->get_group_target());
+        _impl->_cr->pop_group();
     }
 
     void

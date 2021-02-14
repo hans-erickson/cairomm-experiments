@@ -30,6 +30,14 @@
 
 namespace fref
 {
+    struct rgba
+    {
+        double r = 0.0;
+        double g = 0.0;
+        double b = 0.0;
+        double a = 0.0;
+    };
+
     using point2d = std::pair<double, double>;
 
     class Frame
@@ -52,6 +60,9 @@ namespace fref
         void
         fade(double fade_value);
 
+        void
+        fade(const rgba& color);
+
         point2d
         get_center() const;
 
@@ -65,6 +76,12 @@ namespace fref
         move_to(point2d pt);
 
         void
+        pop_group_to_source();
+
+        void
+        push_group();
+
+        void
         rotate(double angle);
 
         void
@@ -74,10 +91,19 @@ namespace fref
         scale(double scale_x, double scale_y);
 
         void
+        select_font(const std::string& font_name, int text_size);
+
+        void
+        set_background(const rgba& color);
+
+        void
         translate(point2d pt);
 
         void
-        write_frame(int index);
+        write_next_frame();
+
+        void
+        write_next_frame(const rgba& color);
 
         void
         zoom(double scale);

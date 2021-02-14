@@ -24,61 +24,80 @@
 
 #include "freflib/frame.h"
 
+#include <iostream>
+
 namespace
 {
     void
-    draw_loop(fref::Frame& effects, int count)
+    status(int i, int count)
     {
-        const std::string s("Hello world!");
-        effects.translate(effects.get_center());
-
-        fref::point2d offset { 5.0, 100.0 };
-        double angle = 2.0 * M_PI / count;
-        for (int i = 0; i < count; i++)
-        {
-            effects.draw_text(s, offset);
-
-            effects.write_frame(i);
-
-            effects.zoom(1.1);
-            effects.fade(0.8);
-
-            effects.rotate(angle);
-        }
-
-        for (int i = 0; i < count; i++)
-        {
-            effects.draw_text(s, offset);
-
-            effects.write_frame(i + count);
-
-            effects.zoom(1.1);
-            effects.fade(0.8);
-        }
-
+        std::cout << i << "/" << count << '\r' << std::flush;
     }
 
     void
-    initialize_context(Cairo::RefPtr<Cairo::Context> cr)
+    draw_loop(fref::Frame& effects, int count)
     {
-        constexpr int TextSize = 100;
-        cr->select_font_face("Bitstream Vera Sans", Cairo::FontSlant::FONT_SLANT_NORMAL,
-                             Cairo::FontWeight::FONT_WEIGHT_NORMAL);
-        cr->set_font_size(TextSize);
+        double zoom_scale = 1.1;
+        int end_count = count * 3;
+        const std::string s("Hello world!");
+        fref::rgba background { 0.2, 0.2, 0.8, 1.0 };
+        fref::rgba fade_color { 0.8, 0.2, 0.2, 0.3 };
+        effects.translate(effects.get_center());
 
-        cr->set_source_rgb(0.0, 0.0, 0.0);
+        int x_offset = effects.get_width() / 200.0;
+        int y_offset = effects.get_height() / 20.0;
+        fref::point2d offset { x_offset, y_offset };
+        double angle = 2.0 * M_PI / count;
+        int i = 0;
+        for (i = 0; i < count; i++)
+        {
+            status(i, end_count);
+            effects.draw_text(s, offset);
+
+            effects.write_next_frame(background);
+
+            effects.zoom(zoom_scale);
+            effects.fade(fade_color);
+            effects.rotate(angle);
+        }
+
+        for (; i < count * 2; i++)
+        {
+            status(i, end_count);
+            effects.draw_text(s, offset);
+
+            effects.write_next_frame(background);
+            effects.zoom(zoom_scale);
+            effects.fade(fade_color);
+        }
+
+        for (; i < count * 3; i++)
+        {
+            zoom_scale += 0.01;
+
+            status(i, end_count);
+
+            effects.write_next_frame(background);
+            effects.zoom(zoom_scale);
+            effects.fade(fade_color);
+        }
     }
 }
 
-int main (void)
+int main(void)
 {
-    static constexpr int width = 1920;
-    static constexpr int height = 1080;
+    /*static constexpr int width     = 1920;
+      static constexpr int height    = 1080;*/
+    static constexpr int width     = 640;
+    static constexpr int height    = 360;
+    static constexpr int text_size = height / 10;
 
     auto surface = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, width, height);
     auto cr = Cairo::Context::create(surface);
 
-    fref::Frame e(cr);
-    initialize_context(cr);
-    draw_loop(e, 20);
+    fref::Frame e(cr, "hello-%03d.png");
+
+    e.select_font("Bitstream Vera Sans", text_size);
+
+    draw_loop(e, 24);
 }
