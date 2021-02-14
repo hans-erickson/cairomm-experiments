@@ -61,16 +61,24 @@ namespace
             effects.rotate(angle);
         }
 
+        double saved_alpha = fade_color.a;
         for (; i < count * 2; i++)
         {
             status(i, end_count);
             effects.draw_text(s, offset);
 
             effects.write_next_frame(background);
-            effects.zoom(zoom_scale);
-            effects.fade(fade_color);
+
+            if (i != count * 2 - 1)
+            {
+                effects.zoom(zoom_scale);
+                effects.fade(fade_color);
+
+                fade_color.a *= 1.05;
+            }
         }
 
+        fade_color.a = saved_alpha;
         for (; i < count * 3; i++)
         {
             zoom_scale += 0.01;
