@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Emacs files
+*.cpp~
+*.h~
+*.txt~
+
+# Build directory
+build/
