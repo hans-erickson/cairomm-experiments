@@ -17,3 +17,9 @@ target_link_libraries(hello PUBLIC
   PkgConfig::Cairomm
   freflib)
 
+add_executable(graphics graphics.cpp)
+
+target_link_libraries(graphics PUBLIC
+  PkgConfig::Cairomm
+  freflib)
+

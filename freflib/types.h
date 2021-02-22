@@ -22,40 +22,42 @@
 //  SOFTWARE.
 //  
 
-#include "../text_object.h"
+#if !defined(FREF_TYPES_H)
+#define FREF_TYPES_H
 
-#include <gtest/gtest.h>
-
-TEST(CmmExpTest, BasicTest)
+namespace fref
 {
-    static constexpr int width  = 1920;
-    static constexpr int height = 1080;
-
-    fref::image img(width, height);
-
-    fref::context ctx(img);
-
-    fref::text_object txt(ctx, "Hello world!", { "Bitstream Vera Sans", 50});
-
-    auto w  = txt.get_width();
-    auto h  = txt.get_height();
-    auto center = txt.get_center();
-    EXPECT_EQ(center.x, w / 2);
-    EXPECT_EQ(center.y, h / 2);
-
-/*    
+    struct delta2d_t
+    {
+        double d_x { 0.0 };
+        double d_y { 0.0 };
+    };
     
-    auto surface = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, width, height);
-    auto cr = Cairo::Context::create(surface);
+    struct point2d_t
+    {
+        double x { 0.0 };
+        double y { 0.0 };
+    };
 
-    fref::Frame e(cr);
+    struct extents_t
+    {
+        point2d_t ul;
+        point2d_t lr;
+    };
 
-    EXPECT_EQ(e.get_width(), 1920);
-    EXPECT_EQ(e.get_height(), 1080);
+    struct rgba_t
+    {
+        double r { 0.0 };
+        double g { 0.0 };
+        double b { 0.0 };
+        double a { 0.0 };
+    };
 
-    auto center = e.get_center();
-    EXPECT_EQ(center.x, 1920 / 2);
-    EXPECT_EQ(center.y, 1080 / 2);
-*/
-    
+    struct scale2d_t
+    {
+        double s_x { 1.0 };
+        double s_y { 1.0 };
+    };
 }
+
+#endif // FREF_TYPES_H

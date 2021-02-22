@@ -13,5 +13,8 @@ pkg_check_modules(Cairomm REQUIRED IMPORTED_TARGET cairomm-1.0)
 
 include_directories(${Cairomm_INCLUDE_DIRS})
 
-add_library(${PROJECT_NAME} frame.cpp)
+add_library(${PROJECT_NAME} frame.cpp
+  cairo/context_impl.cpp
+  cairo/image_impl.cpp
+  cairo/text_object_impl.cpp)
 

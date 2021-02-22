@@ -22,6 +22,9 @@
 //  SOFTWARE.
 //  
 
+#if !defined(FREF_FRAME_H)
+#define FREF_FRAME_H
+
 #include <cairomm/cairomm.h>
 
 #include <memory>
@@ -113,3 +116,5 @@ namespace fref
         std::unique_ptr<Implementation> _impl;
     };
 }
+
+#endif // FREF_FRAME_H

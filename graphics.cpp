@@ -22,10 +22,15 @@
 //  SOFTWARE.
 //  
 
-#include "freflib/frame.h"
+//#include "freflib/graphics_object.h"
+//#include "freflib/factory.h"
+#include "freflib/context.h"
+#include "freflib/text_object.h"
 
+#include <cairomm/cairomm.h>
 #include <iostream>
 
+/*
 namespace
 {
     // Frame transform properties
@@ -72,7 +77,7 @@ namespace
         
     };
 
-    /*
+    / *
     class KeyFrameManager
     {
     public:
@@ -96,7 +101,7 @@ namespace
         
         int _frames_per_second = 0;
     };
-    */
+    * /
 
 
     //effects.zoom(zoom_scale);
@@ -196,21 +201,38 @@ namespace
     //   2. Previous frame layer with transparent background
     //   3. Actors (such as text)
 }
+*/
 
 int main(void)
 {
     /*static constexpr int width     = 1920;
       static constexpr int height    = 1080;*/
+
     static constexpr int width     = 640;
     static constexpr int height    = 360;
     static constexpr int text_size = height / 10;
 
     auto surface = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, width, height);
-    auto cr = Cairo::Context::create(surface);
 
-    fref::Frame e(cr, "hello-%03d.png");
 
-    e.select_font("Bitstream Vera Sans", text_size);
+    fref::image img(width, height);
 
-    draw_loop(e, 24);
+    fref::context ctx(img);
+
+    fref::text_object txt(ctx, "Hello world!", { "Bitstream Vera Sans", 50});
+
+    txt.translate(txt.get_center());
+
+    int max = 12;
+    double angle = (M_PI * 2) / max;
+    for (int x = 0; x < max; ++x)
+    {
+        txt.rotate(angle);
+        txt.draw();
+    }
+
+    img.save("stuff.png");
+    //auto cr = Cairo::Context::create(surface);
+
+    //fref::context ctx(cr);
 }

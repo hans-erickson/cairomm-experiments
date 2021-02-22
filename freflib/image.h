@@ -22,40 +22,29 @@
 //  SOFTWARE.
 //  
 
-#include "../text_object.h"
+#if !defined(FREF_IMAGE_H)
+#define FREF_IMAGE_H
 
-#include <gtest/gtest.h>
+#include <memory>
+#include <string>
 
-TEST(CmmExpTest, BasicTest)
+namespace fref
 {
-    static constexpr int width  = 1920;
-    static constexpr int height = 1080;
+    class image
+    {
+    public:
+        image(int width, int height);
 
-    fref::image img(width, height);
+        ~image();
 
-    fref::context ctx(img);
+        void
+        save(const std::string& name);
 
-    fref::text_object txt(ctx, "Hello world!", { "Bitstream Vera Sans", 50});
-
-    auto w  = txt.get_width();
-    auto h  = txt.get_height();
-    auto center = txt.get_center();
-    EXPECT_EQ(center.x, w / 2);
-    EXPECT_EQ(center.y, h / 2);
-
-/*    
-    
-    auto surface = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, width, height);
-    auto cr = Cairo::Context::create(surface);
-
-    fref::Frame e(cr);
-
-    EXPECT_EQ(e.get_width(), 1920);
-    EXPECT_EQ(e.get_height(), 1080);
-
-    auto center = e.get_center();
-    EXPECT_EQ(center.x, 1920 / 2);
-    EXPECT_EQ(center.y, 1080 / 2);
-*/
-    
+    private:
+        friend class context;
+        struct impl_t;
+        std::unique_ptr<impl_t> _impl;
+    };
 }
+
+#endif // FREF_IMAGE_H

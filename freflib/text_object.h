@@ -22,40 +22,56 @@
 //  SOFTWARE.
 //  
 
-#include "../text_object.h"
+#if !defined(FREF_TEXT_OBJECT_H)
+#define FREF_TEXT_OBJECT_H
 
-#include <gtest/gtest.h>
+#include "context.h"
+#include "graphics_object.h"
 
-TEST(CmmExpTest, BasicTest)
+#include <memory>
+#include <string>
+
+namespace fref
 {
-    static constexpr int width  = 1920;
-    static constexpr int height = 1080;
-
-    fref::image img(width, height);
-
-    fref::context ctx(img);
-
-    fref::text_object txt(ctx, "Hello world!", { "Bitstream Vera Sans", 50});
-
-    auto w  = txt.get_width();
-    auto h  = txt.get_height();
-    auto center = txt.get_center();
-    EXPECT_EQ(center.x, w / 2);
-    EXPECT_EQ(center.y, h / 2);
-
-/*    
+    struct font_t
+    {
+        std::string name;
+        // TODO: Slant or whatever
+        int size { 10 };
+    };
     
-    auto surface = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, width, height);
-    auto cr = Cairo::Context::create(surface);
+    class text_object
+        : public graphics_object
+    {
+    public:
+        text_object(context& context,
+                    const std::string& text = "",
+                    const font_t& font = {});
 
-    fref::Frame e(cr);
+        ~text_object() override;
+        
+    private:
+        void
+        _draw() override;
 
-    EXPECT_EQ(e.get_width(), 1920);
-    EXPECT_EQ(e.get_height(), 1080);
+        extents_t
+        _get_extents() const override;
 
-    auto center = e.get_center();
-    EXPECT_EQ(center.x, 1920 / 2);
-    EXPECT_EQ(center.y, 1080 / 2);
-*/
-    
+        void
+        _rotate(double angle) override;
+
+        void
+        _scale(scale2d_t zoom) override;
+
+        void
+        _set_color(rgba_t color) override;
+        
+        void
+        _translate(delta2d_t pt) override;
+
+        struct impl_t;
+        std::unique_ptr<impl_t> _impl;
+    };
 }
+
+#endif // FREF_TEXT_OBJECT_H

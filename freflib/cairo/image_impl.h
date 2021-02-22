@@ -22,40 +22,46 @@
 //  SOFTWARE.
 //  
 
-#include "../text_object.h"
+#if !defined(FREF_IMAGE_IMPL_H)
+#define FREF_IMAGE_IMPL_H
 
-#include <gtest/gtest.h>
+#include "../image.h"
 
-TEST(CmmExpTest, BasicTest)
+#include <cairomm/cairomm.h>
+
+namespace fref
 {
-    static constexpr int width  = 1920;
-    static constexpr int height = 1080;
+    struct common_impl_t
+    {
+        /*
+        static Cairo::RefPtr<Cairo::ImageSurface>
+        get_surface(fref::image& img)
+        {
+            return get_surface_v(img);
+        }
 
-    fref::image img(width, height);
-
-    fref::context ctx(img);
-
-    fref::text_object txt(ctx, "Hello world!", { "Bitstream Vera Sans", 50});
-
-    auto w  = txt.get_width();
-    auto h  = txt.get_height();
-    auto center = txt.get_center();
-    EXPECT_EQ(center.x, w / 2);
-    EXPECT_EQ(center.y, h / 2);
-
-/*    
+        virtual Cairo::RefPtr<Cairo::ImageSurface>
+        get_surface_v(fref::image& img) = 0;
+        */
+    };
     
-    auto surface = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, width, height);
-    auto cr = Cairo::Context::create(surface);
+    struct image::impl_t
+        : public common_impl_t
+    {
+        impl_t(int width_, int height_);
 
-    fref::Frame e(cr);
+        /*
+        Cairo::RefPtr<Cairo::ImageSurface>
+        get_surface_v(fref::image& img) override
+        {
+            return img._impl->surface;
+        }
+        */
 
-    EXPECT_EQ(e.get_width(), 1920);
-    EXPECT_EQ(e.get_height(), 1080);
-
-    auto center = e.get_center();
-    EXPECT_EQ(center.x, 1920 / 2);
-    EXPECT_EQ(center.y, 1080 / 2);
-*/
-    
+        int width = 0;
+        int height = 0;
+        Cairo::RefPtr<Cairo::ImageSurface> surface;
+    };
 }
+
+#endif // FREF_IMAGE_IMPL_H

@@ -22,40 +22,31 @@
 //  SOFTWARE.
 //  
 
+#if !defined(FREF_TEXT_OBJECT_IMPL_H)
+#define FREF_TEXT_OBJECT_IMPL_H
+
 #include "../text_object.h"
 
-#include <gtest/gtest.h>
+#include "context_impl.h"
 
-TEST(CmmExpTest, BasicTest)
+namespace fref
 {
-    static constexpr int width  = 1920;
-    static constexpr int height = 1080;
+    struct text_object::impl_t
+    {
+        impl_t(Cairo::RefPtr<Cairo::Context> cr_,
+               const std::string& text_,
+               const font_t& font_);
 
-    fref::image img(width, height);
+        void
+        calculate_extents();
 
-    fref::context ctx(img);
-
-    fref::text_object txt(ctx, "Hello world!", { "Bitstream Vera Sans", 50});
-
-    auto w  = txt.get_width();
-    auto h  = txt.get_height();
-    auto center = txt.get_center();
-    EXPECT_EQ(center.x, w / 2);
-    EXPECT_EQ(center.y, h / 2);
-
-/*    
-    
-    auto surface = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, width, height);
-    auto cr = Cairo::Context::create(surface);
-
-    fref::Frame e(cr);
-
-    EXPECT_EQ(e.get_width(), 1920);
-    EXPECT_EQ(e.get_height(), 1080);
-
-    auto center = e.get_center();
-    EXPECT_EQ(center.x, 1920 / 2);
-    EXPECT_EQ(center.y, 1080 / 2);
-*/
-    
+        Cairo::RefPtr<Cairo::Context> cr;
+        Cairo::Matrix matrix;
+        std::string text;
+        font_t font;
+        rgba_t color;
+        extents_t extents;
+    };
 }
+
+#endif // FREF_TEXT_OBJECT_IMPL_H
